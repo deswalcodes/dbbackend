@@ -1,1 +1,1 @@
-# using mongodb and mongoose library with zod
+# using mongodb and mongoose library with zod validation
