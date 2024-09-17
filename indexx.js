@@ -14,7 +14,7 @@ app.post('/signup',async function(req,res){
     const reqBody = z.object({
         name : z.string().min(3).max(100),
         email : z.string().min(3).max(100).email(),
-        password : z.string().min(3).max(10)
+        password : z.string().min(3).max(10).regex(/[A-Z]/,"Password must contain atleast one uppercase").regex(/[\W_]/,"Password must contain one symbol!")
     })
     const parsedDataWithSuccess = reqBody.safeParse(req.body);
     if(!parsedDataWithSuccess.success){
@@ -128,6 +128,60 @@ function auth(req,res,next){
     }
 
 }
+
+app.post('/done',auth,async function(req,res){
+    const userId = req.userId;
+    const todo = req.body.todo;
+    try{
+        const response = await TodoModel.findByIdAndUpdate({
+            userId : userId,
+            todo : todo
+        },{done:true},{new:true});
+        if(response){
+            res.json({
+                message : "todo updated",
+                todo : response
+            })
+        }
+        else{
+            res.json({
+                message : "todo not found"
+            })
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message: "error"
+        })
+    }
+
+})
+app.post('/delete',auth,async function(req,res){
+    const userId = req.userId;
+    const todo = req.body.todo;
+    try{
+        const response = await TodoModel.findByIdAndDelete({
+            userId :userId,
+            todo : todo
+        })
+        if(response){
+            res.json({
+                message : "todo deleted"
+            })
+        }
+        else{
+            res.status(404).json({
+                message : "todo not found"
+            })
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message: "error accessing the database"
+        })
+
+    }
+})
 
 
 app.listen(3001);

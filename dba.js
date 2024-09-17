@@ -12,7 +12,8 @@ const User = new Schema({
 const Todo = new Schema({
     todo : String,
     userId : ObjectId,
-    done : Boolean
+    done : Boolean,
+    time : {type : Date,default : Date.now()}
 })
 
 const UserModel= mongoose.model('users',User);
