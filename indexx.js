@@ -133,7 +133,7 @@ app.post('/done',auth,async function(req,res){
     const userId = req.userId;
     const todo = req.body.todo;
     try{
-        const response = await TodoModel.findByIdAndUpdate({
+        const response = await TodoModel.findOneAndUpdate({
             userId : userId,
             todo : todo
         },{done:true},{new:true});
@@ -181,6 +181,45 @@ app.post('/delete',auth,async function(req,res){
         })
 
     }
+})
+app.post('/reset',auth,async function(req,res){
+    const email = req.body.email;
+    const password = req.body.password;
+    const newPassword = req.body.newPassword;
+    try{
+        const response = await UserModel.findOne({
+            email : email
+        });
+        if(response){
+            const hashedP = response.password;
+            const verify = bcrypt.compare(password,hashedP);
+            if(verify){
+                const hashednew = await bcrypt.hash(newPassword,5);
+                const response2 = await UserModel.findOneAndUpdate({
+                    email : email
+                    
+
+                },{password : hashednew})
+            }
+            res.json({
+                message : "password updated"
+            })
+
+        }
+        else{
+            res.json({
+                message : "incoorect password"
+            })
+        }
+
+    }
+    catch(err){
+        res.status(500).json({
+            message : "unable to acces database"
+            
+        })
+    }
+
 })
 
 
