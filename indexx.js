@@ -44,6 +44,7 @@ app.post('/signup',async function(req,res){
         name : name,
         email : email,
         password : hashedPassword
+        
 
 
         })
@@ -153,6 +154,7 @@ app.post('/done',auth,async function(req,res){
                 message : "todo updated",
                 todo : response
             })
+
         }
         else{
             res.json({
@@ -370,7 +372,31 @@ app.post('/priority',auth,async function(req,res){
         })
     }
 
+});
+app.get('/points',auth,async function(req,res){
+    const userId = req.userId;
+    try{
+        const doneTasks = await TodoModel.countDocuments({
+            userId : userId,
+            done : true
+        });
+        let pointsVal = doneTasks*10 ;
+        const ress = await UserModel.findOneAndUpdate({
+            _id : userId
+    
+        },{points : pointsVal},{new : true});
+        res.json({
+            message : "points updated successfully",
+            user : ress
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message : "cant access database"
+        })
+    }
 })
+
 
 
 
