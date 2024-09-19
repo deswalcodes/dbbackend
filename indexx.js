@@ -8,6 +8,13 @@ const app = express();
 app.use(express.json());
 const JWT_SECRET = 'dhbvdsvkasdjans';
 const { z } = require('zod');
+const rateLimit = require('express-rate-limit')
+const apiLimiter = rateLimit({
+    windowMs : 15 * 60 * 1000,
+    max : 100,
+    message : 'Too many requests'
+});
+app.use(apiLimiter);
 
 
 app.post('/signup',async function(req,res){
@@ -100,10 +107,11 @@ app.post('/addtodo',auth,function(req,res){
 })
 app.get('/todos', auth, async function(req, res) {
     const userId = req.userId;
+    const { page =1,limit =5 } = req.query;
     try {
         const todos = await TodoModel.find({
             userId: userId
-        });
+        }).skip((page-1)*limit).limit(Number(limit));
         res.json({
             tasks: todos
         });
@@ -277,7 +285,7 @@ app.get('/productivity',auth,async function(req,res){
 
 
 })
-app.get('/pending',auth, async function(req,res)){
+app.get('/pending',auth, async function(req,res){
 
     const userId = req.userId;
 
@@ -311,7 +319,31 @@ app.get('/pending',auth, async function(req,res)){
 
     }
 
-}
+})
+app.get('/todos/search',auth,async function(req,res){
+    const userId = req.userId;
+    const query = req.query;
+    try{
+        const responsee = await TodoModel.find({
+            userId : userId,
+            $or : [
+                {description : {$regex : query,$options : 'i'}},
+                {todo : {$regex : query,$options : 'i'}}
+            ]
+    
+        });
+        res.json({
+            tasks : responsee
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message : "unable to access db"
+        })
+
+    }
+})
+
 
 
 
