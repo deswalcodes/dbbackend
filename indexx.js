@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://21cs2014:PjqThuLa8aIQYfhg@cluster0.x4o0n.mongodb.net/todo-collections');
+mongoose.connect('mongodb+srv://21cs2014:PjqThuLa8aIQYfhg@cluster0.x4o0n.mongodb.net/todo-collections-new');
 const{UserModel,TodoModel} = require("./dba");
 const app = express();
 app.use(express.json());
@@ -187,14 +187,24 @@ app.post('/delete',auth,async function(req,res){
 app.post('/reset',auth,async function(req,res){
     const email = req.body.email;
     const password = req.body.password;
+    const zodObject = z.object({
+        newPassword : z.string().min(3).max(10).regex(/[A-Z]/,"Password must contain atleast one uppercase").regex(/[\W_]/,"Password must contain one symbol!")
+    })
+    const ver = zodObject.safeParse(req.body.newPassword)
     const newPassword = req.body.newPassword;
+    if(!ver.success){
+        res.status(404).json({
+            message : "incorrect format",
+            error : ver.error
+        })
+    }
     try{
         const response = await UserModel.findOne({
             email : email
         });
         if(response){
             const hashedP = response.password;
-            const verify = bcrypt.compare(password,hashedP);
+            const verify = await bcrypt.compare(password,hashedP);
             if(verify){
                 const hashednew = await bcrypt.hash(newPassword,5);
                 const response2 = await UserModel.findOneAndUpdate({
@@ -267,6 +277,41 @@ app.get('/productivity',auth,async function(req,res){
 
 
 })
+app.get('/pending',auth, async function(req,res)){
+
+    const userId = req.userId;
+
+    const timeN = new Date(Date.now() - 12*60*60*1000);
+
+    try{
+        const overdueTasks = await TodoModel.find({
+            userId : userId,
+            done : false,
+            time : { $lt : timeN}
+    
+        })
+        if(overdueTasks){
+            res.json({
+                tasks : overdueTasks
+            })
+        }
+        else{
+            res.json({
+                message : "no tasks is pending from more than 12 hours!"
+            })
+        }
+    }
+
+
+
+    catch(err){
+        res.status(500).json({
+            message : "unable to access the db"
+        })
+
+    }
+
+}
 
 
 
