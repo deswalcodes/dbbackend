@@ -98,7 +98,8 @@ app.post('/addtodo',auth,function(req,res){
         todo : todo,
         description : description,
         done : done,
-        userId : userId
+        userId : userId,
+        priority : 'low'
     })
     res.json({
         message : "todo added"
@@ -342,6 +343,33 @@ app.get('/todos/search',auth,async function(req,res){
         })
 
     }
+})
+app.post('/priority',auth,async function(req,res){
+    const userId = req.userId;
+    const todo = req.body.todo;
+    try{
+        const responses = await TodoModel.findOneAndUpdate({
+            userId : userId,
+            todo : todo
+        },{priority : 'high'},{new : true})
+        if(responses){
+            res.json({
+                message : "priority increased",
+                todo : responses
+            })
+        }
+        else{
+            res.json({
+                message : "todo not found"
+            })
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message : "unable to access the database"
+        })
+    }
+
 })
 
 
