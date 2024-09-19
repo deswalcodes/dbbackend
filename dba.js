@@ -11,6 +11,7 @@ const User = new Schema({
 
 const Todo = new Schema({
     todo : String,
+    desciption : String,
     userId : ObjectId,
     done : Boolean,
     time : {type : Date,default : Date.now()}

@@ -86,8 +86,10 @@ app.post('/addtodo',auth,function(req,res){
     const userId = req.userId;
     const todo = req.body.todo;
     const done = req.body.done;
+    const description = req.body.description;
     TodoModel.create({
         todo : todo,
+        description : description,
         done : done,
         userId : userId
     })
@@ -221,6 +223,52 @@ app.post('/reset',auth,async function(req,res){
     }
 
 })
+app.get('/productivity',auth,async function(req,res){
+    const userId = req.userId;
+    try{
+        const notDone = await TodoModel.countDocuments({
+            userId : userId,
+            done : false
+    
+        });
+    
+        const Alltodo = await TodoModel.countDocuments({
+            userId : userId
+        });
+    
+        const productivity = ((Alltodo-notDone)/Alltodo) * 100 ;
+        if(productivity>80 && productivity<100){
+            res.json({
+                message : "You are going good today",
+                todayPro : productivity
+            })
+        }
+        if(productivity>60 && productivity<80){
+            res.json({
+                message : "You need to push a lil bit!",
+                todayPro : productivity
+            })
+        }
+        if(productivity>0 && productivity<60){
+            res.json({
+                message : "You are lacking behind!Keep going",
+                todayPro : productivity
+            })
+        }
+
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Trouble connecting with DB"
+        })
+    }
+
+
+
+
+})
+
+
 
 
 app.listen(3001);
