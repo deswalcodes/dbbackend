@@ -329,9 +329,9 @@ app.get('/pending',auth, async function(req,res){
     }
 
 })
-app.get('/todos/search',auth,async function(req,res){
+app.get('/search',auth,async function(req,res){
     const userId = req.userId;
-    const query = req.query;
+    const query = req.query.query;
     try{
         const responsee = await TodoModel.find({
             userId : userId,

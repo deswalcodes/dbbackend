@@ -1,6 +1,154 @@
 <html>
     <head>
         <title>Dashboard</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto+Slab:wght@300;400;500&display=swap');
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            body {
+                background-color: #0D0D0D; 
+                color: #e0e0e0; 
+                padding: 20px;
+                font-family: 'Roboto Slab', serif;
+                position: relative;
+            }
+
+            #search {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            #search input[type="text"] {
+                width: 70%;
+                padding: 10px;
+                margin-right: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #262626;
+                color: #fff;
+                font-size: 16px;
+            }
+
+            #search button {
+                padding: 10px 20px;
+                background-color: #1A73E8;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            #createtodo input[type="text"], 
+            #createtodo button {
+                padding: 10px;
+                margin-right: 10px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                border: none;
+            }
+
+            #createtodo input[type="text"] {
+                background-color: #262626;
+                color: #fff;
+                font-size: 16px;
+            }
+
+            #createtodo button {
+                background-color: #1A73E8;
+                color: #fff;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            #alltodos table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background-color: #262626;
+                border-radius: 5px;
+            }
+
+            #alltodos th, #alltodos td {
+                padding: 12px;
+                text-align: left;
+                color: #fff;
+                border-bottom: 1px solid #404040;
+            }
+
+            #alltodos th {
+                background-color: #1A1A1A;
+                font-size: 18px;
+            }
+
+            #alltodos td {
+                background-color: #1A1A1A;
+                font-size: 16px;
+            }
+
+            #alltodos button {
+                background-color: #1A73E8;
+                border: none;
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            #points, #productivity {
+                margin-top: 20px;
+                font-size: 18px;
+                font-weight: 500;
+            }
+
+            
+            #logout {
+                position: absolute;
+                top: 20px;
+                right: 300px; 
+            }
+
+            #resetpaswword {
+                position: absolute;
+                top: 20px;
+                right: 20px; 
+            }
+
+            #logout button, #resetpaswword button {
+                padding: 10px 20px;
+                background-color: #1A73E8;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            
+            #pendingtodos {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+            }
+
+            #pendingtodos button {
+                padding: 10px 20px;
+                background-color: #1A73E8;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+        </style>
+            
     </head>
     <div id = "createtodo">
         <input id ="title" type ="text" placeholder="New Task Title">
@@ -29,7 +177,7 @@
         <button onclick = "logout()">LogOut</button>
     </div>
     <div id = "points">
-        Points Earned - <span id ="points"> </span>
+        Points Earned - <span id ="pointss"> </span>
         
     </div>
     <div id = "resetpaswword">
@@ -39,14 +187,17 @@
         Your Productivity - <span id ="pro"> </span>
     </div>
     <div id ="pendingtodos">
-        <button id = "pendingto" onclick = "pendingt">Tasks Pending from a long time</button>
+        <button id = "pendingto" onclick = "pendingt()">Tasks Pending from a long time</button>
     </div>
     <div id ="search">
-        <input id ="searchtab" type ="text" placeholder = "Search any Task">
-        <button onclick = "search">Search</button>
+        <input id ="searchtab" type ="text" placeholder = "Search any Task" oninput="performSearch()">
+        
     </div>
     <script src = "https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
+        window.onload = function() {
+            fetchTodos,points,pro;
+        }
         async function addtodo(){
             todo = document.getElementById("title").value;
             description = document.getElementById("description").value;
@@ -63,6 +214,8 @@
                 alert("Unable to add the Task")
             }
             fetchTodos();
+            points();
+            pro();
         }
         async function fetchTodos(){
             try{
@@ -136,6 +289,8 @@
                 alert("Unable to update")
             }
             fetchTodos();
+            pro();
+            points();
         }
         async function changePriority(data){
             try{
@@ -168,6 +323,55 @@
             }
             fetchTodos()
         }
+        async function logout(){
+            localStorage.clear('token');
+            window.location.href = 'index.html'
+        }
+        async function points(){
+            const response = await axios.get("http://localhost:3001/points",{
+                headers : {
+                    token : localStorage.getItem('token')
+                }
+            });
+            const data = response.data.user.points;
+            document.querySelector('#pointss').innerHTML = data;
+
+        }
+        async function resetp(){
+            window.href.location = 'reset.html'
+        }
+        async function pro(){
+           const response = await axios.get("http://localhost:3001/productivity",{
+            headers : {
+                token : localStorage.getItem('token')
+            }
+           });
+           response.data.todayPro = document.querySelector('#pro').innerHTML;
+
+        }
+        async function pendingt(){
+            window.href.location = 'pending.html'
+        }
+        async function performSearch(){
+            const searchValue = document.getElementById('searchtab').value;
+            if(searchValue.trim() === ""){
+                fetchTodos();
+                return;
+            }
+            try{
+                const response = await axios.get(`http://localhost:3001/search?query=${encodeURIComponent(searchValue)}`,{
+                    headers : {
+                        token : localStorage.getItem('token')
+                    }
+                });
+                populateTable(response.data.tasks)
+            }
+            catch(err){
+                alert("unable to fetch search results")
+            }
+        }
+        
+
 
     </script>
 </html>
