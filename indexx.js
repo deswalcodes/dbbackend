@@ -15,6 +15,9 @@ const apiLimiter = rateLimit({
     message : 'Too many requests'
 });
 app.use(apiLimiter);
+app.get('/',function(req,res){
+    res.sendFile("/Users/priyanshudeswal/Desktop/dbbackend/public/index.html")
+});
 
 
 app.post('/signup',async function(req,res){
@@ -25,7 +28,7 @@ app.post('/signup',async function(req,res){
     })
     const parsedDataWithSuccess = reqBody.safeParse(req.body);
     if(!parsedDataWithSuccess.success){
-        res.json({
+        res.status(404).json({
             message : "Incorrect format",
             error : parsedDataWithSuccess.error
         })
