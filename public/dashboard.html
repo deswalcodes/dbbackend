@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>Dashboard</title>
+    </head>
+    <div id = "createtodo">
+        <input id ="title" type ="text" placeholder="New Task Title">
+        <input id = "description" type = "text" placeholder = "Description">
+        <button onclick = "addtodo()">Add Task</button>
+    </div>
+    <div id = "alltodos">
+        <table id="tasks-table">
+            <thead>
+                <tr>
+                    <th>Your Tasks</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table>
+        
+    </div>
+    <div id = "logout">
+        <button onclick = "logout()">LogOut</button>
+    </div>
+    <div id = "points">
+        Points Earned - <span id ="points"> </span>
+        
+    </div>
+    <div id = "resetpaswword">
+        <button onclick = "resetp()">Reset Password</button>
+    </div>
+    <div id = "productivity">
+        Your Productivity - <span id ="pro"> </span>
+    </div>
+    <div id ="pendingtodos">
+        <button id = "pendingto" onclick = "pendingt">Tasks Pending from a long time</button>
+    </div>
+    <div id ="search">
+        <input id ="searchtab" type ="text" placeholder = "Search any Task">
+        <button onclick = "search">Search</button>
+    </div>
+</html>

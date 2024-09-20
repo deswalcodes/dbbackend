@@ -1,6 +1,90 @@
 <html>
     <head>
         <title>Task Manager</title>
+        <style>
+            
+            body {
+                font-family: 'Montserrat', sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #1e1e1e;
+                color: #f0f0f0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            #container {
+                background-color: #2c2c2c;
+                border-radius: 10px;
+                padding: 40px;
+                width: 400px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            }
+
+            #heading {
+                text-align: center;
+                font-size: 30px;
+                font-weight: bold;
+                margin-bottom: 30px;
+                color: #f39c12;
+            }
+
+            #signup, #signin {
+                margin-bottom: 30px;
+                padding: 20px;
+                border-radius: 8px;
+                background-color: #333;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            }
+
+            #signup input, #signin input {
+                width: 100%;
+                padding: 12px;
+                margin: 10px 0;
+                border: none;
+                border-radius: 5px;
+                background-color: #444;
+                color: #f0f0f0;
+                font-size: 14px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+                border: none;
+                border-radius: 5px;
+                background-color: #f39c12;
+                color: #fff;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+
+            button:hover {
+                background-color: #e67e22;
+            }
+
+            input::placeholder {
+                color: #888;
+            }
+
+            
+            @media (max-width: 480px) {
+                #container {
+                    width: 100%;
+                    padding: 20px;
+                }
+
+                #heading {
+                    font-size: 24px;
+                }
+            }
+        </style>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     </head>
     <body>
         
@@ -36,19 +120,50 @@
                     name: name,
                     email : email,
                     password : password
-                })
-
-
-                    alert(response.data.message);
-
-
+                    });
+                    alert("you are signed up")
                 }
                 catch(err){
-                    alert("Error ")
-
+                    if(err.response.status === 404){
+                        const errorDetails = err.response.data.error.issues.map(issue => issue.message).join(", ");
+                        alert(errorDetails)
+                    }
+                    if(err.response.status === 403){
+                        alert(err.response.data.message)
+                    }
+                    else{
+                        alert("an unexpected error occured")
+                    }
+                    
                 }
-                
-
+            } 
+            async function signin(){
+                const email = document.getElementById("signinusername").value;
+                const password = document.getElementById("signinpassword").value;
+                try{
+                    const response = await axios.post("http://localhost:3001/signin",{
+                        email : email,
+                        password : password
+                    })
+                    localStorage.setItem('token',response.data.token);
+                    if(localStorage.getItem('token')){
+                        alert("you are signed in");
+                        window.location.href = "dashboard.html";
+                    }
+                }
+                catch(err){
+                    if(err.response.status === 403){
+                        alert("user doesnt exist")
+                        return
+                    }
+                    if(err.response.status == 404){
+                        alert("incorrect password")
+                        return
+                    }
+                    else{
+                        alert("unexpected error occured")
+                    }
+                }
             }
         </script>
 

@@ -18,6 +18,9 @@ app.use(apiLimiter);
 app.get('/',function(req,res){
     res.sendFile("/Users/priyanshudeswal/Desktop/dbbackend/public/index.html")
 });
+app.get('/dashboard.html',auth,function(req,res){
+    res.sendFile("/Users/priyanshudeswal/Desktop/dbbackend/public/dashboard.html");
+})
 
 
 app.post('/signup',async function(req,res){
@@ -53,14 +56,14 @@ app.post('/signup',async function(req,res){
         })
     }
     catch(err){
-        res.json({
+        res.status(403).json({
             message : 'user already exists!'
         })
         errorThrown = true;
 
     }
     if(!errorThrown){
-        res.json({
+        res.status(200).json({
             message : 'you are signed up'
         })
     }
@@ -83,12 +86,12 @@ app.post('/signin',async function(req,res){
         const token = jwt.sign({
             id : response._id.toString()
         },JWT_SECRET);
-        res.json({
+        res.status(200).json({
             token : token
         })
     }
     else{
-        res.status(403).json({
+        res.status(404).json({
             message : 'incorrect password'
         })
     }
@@ -105,7 +108,7 @@ app.post('/addtodo',auth,function(req,res){
         userId : userId,
         priority : 'low'
     })
-    res.json({
+    res.status(200).json({
         message : "todo added"
     })
 
@@ -117,11 +120,11 @@ app.get('/todos', auth, async function(req, res) {
         const todos = await TodoModel.find({
             userId: userId
         }).skip((page-1)*limit).limit(Number(limit));
-        res.json({
+        res.status(200).json({
             tasks: todos
         });
     } catch (error) {
-        res.status(500).json({
+        res.status(400).json({
             message: "Error fetching todos"
         });
     }
@@ -153,20 +156,20 @@ app.post('/done',auth,async function(req,res){
             todo : todo
         },{done:true},{new:true});
         if(response){
-            res.json({
+            res.status(200).json({
                 message : "todo updated",
                 todo : response
             })
 
         }
         else{
-            res.json({
+            res.status(400).json({
                 message : "todo not found"
             })
         }
     }
     catch(err){
-        res.status(500).json({
+        res.status(400).json({
             message: "error"
         })
     }
@@ -181,7 +184,7 @@ app.post('/delete',auth,async function(req,res){
             todo : todo
         })
         if(response){
-            res.json({
+            res.status(200).json({
                 message : "todo deleted"
             })
         }
@@ -192,7 +195,7 @@ app.post('/delete',auth,async function(req,res){
         }
     }
     catch(err){
-        res.status(500).json({
+        res.status(400).json({
             message: "error accessing the database"
         })
 
@@ -227,20 +230,20 @@ app.post('/reset',auth,async function(req,res){
 
                 },{password : hashednew})
             }
-            res.json({
+            res.status(200).json({
                 message : "password updated"
             })
 
         }
         else{
-            res.json({
+            res.status(400).json({
                 message : "incoorect password"
             })
         }
 
     }
     catch(err){
-        res.status(500).json({
+        res.status(400).json({
             message : "unable to acces database"
             
         })
