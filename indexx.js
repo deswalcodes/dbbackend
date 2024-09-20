@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://21cs2014:PjqThuLa8aIQYfhg@cluster0.x4o0n.mongodb.net/todo-collections-new');
+mongoose.connect('mongodb+srv://21cs2014:PjqThuLa8aIQYfhg@cluster0.x4o0n.mongodb.net/todo-collections-neww');
 const{UserModel,TodoModel} = require("./dba");
 const app = express();
 app.use(express.json());
@@ -18,7 +18,7 @@ app.use(apiLimiter);
 app.get('/',function(req,res){
     res.sendFile("/Users/priyanshudeswal/Desktop/dbbackend/public/index.html")
 });
-app.get('/dashboard.html',auth,function(req,res){
+app.get('/dashboard.html',function(req,res){
     res.sendFile("/Users/priyanshudeswal/Desktop/dbbackend/public/dashboard.html");
 })
 
@@ -99,12 +99,12 @@ app.post('/signin',async function(req,res){
 app.post('/addtodo',auth,function(req,res){
     const userId = req.userId;
     const todo = req.body.todo;
-    const done = req.body.done;
+    
     const description = req.body.description;
     TodoModel.create({
         todo : todo,
         description : description,
-        done : done,
+        done : false,
         userId : userId,
         priority : 'low'
     })
@@ -179,7 +179,7 @@ app.post('/delete',auth,async function(req,res){
     const userId = req.userId;
     const todo = req.body.todo;
     try{
-        const response = await TodoModel.findByIdAndDelete({
+        const response = await TodoModel.findOneAndDelete({
             userId :userId,
             todo : todo
         })

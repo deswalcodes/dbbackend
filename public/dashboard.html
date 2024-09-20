@@ -12,8 +12,11 @@
             <thead>
                 <tr>
                     <th>Your Tasks</th>
+                    <th>Description</th>
                     <th>Status</th>
+                    <th>Priority</th>
                     <th>Actions</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -42,4 +45,129 @@
         <input id ="searchtab" type ="text" placeholder = "Search any Task">
         <button onclick = "search">Search</button>
     </div>
+    <script src = "https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        async function addtodo(){
+            todo = document.getElementById("title").value;
+            description = document.getElementById("description").value;
+            try{
+                const response = await axios.post("http://localhost:3001/addtodo",{
+                todo : todo,
+                description : description
+                },{headers :{
+                    token : localStorage.getItem('token')
+                }});
+                alert("Todo Added");
+            }
+            catch(err){
+                alert("Unable to add the Task")
+            }
+            fetchTodos();
+        }
+        async function fetchTodos(){
+            try{
+                const response = await axios.get("http://localhost:3001/todos",{
+                headers : {
+                    token : localStorage.getItem('token')
+                }
+                });
+                populateTable(response.data.tasks)
+            }
+            catch(err){
+                alert("Unable to fetch your tasks!");
+            }
+
+
+        }
+        async function populateTable(todos){
+            const tableBody = document.querySelector('#tasks-table tbody');
+            tableBody.innerHTML = '';
+            todos.forEach(todo =>{
+                const row =document.createElement('tr');
+                const taskCell = document.createElement('td');
+                taskCell.textContent = todo.todo;
+                row.appendChild(taskCell);
+
+                const descCell = document.createElement('td');
+                descCell.textContent = todo.description;
+                row.appendChild(descCell);
+
+                const statusCell = document.createElement('td');
+                statusCell.textContent = todo.done;
+                row.appendChild(statusCell);
+
+                const priorityCell = document.createElement('td');
+                priorityCell.textContent = todo.priority;
+                row.appendChild(priorityCell);
+
+                const actionCell = document.createElement('td');
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = 'Mark as Completed';
+                completeButton.onclick = () => markasCompleted(todo.todo);
+                actionCell.appendChild(completeButton);
+
+                const priorityChange = document.createElement('button');
+                priorityChange.textContent = 'Increase Priority';
+                priorityChange.onclick = () => changePriority(todo.todo);
+                actionCell.appendChild(priorityChange);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = "Delete";
+                deleteButton.onclick = () => deleteTodo(todo.todo);
+                actionCell.appendChild(deleteButton);
+                row.append(actionCell);
+                tableBody.appendChild(row);
+
+
+            })
+
+        }
+        async function markasCompleted(data){
+            try{
+                const response = await axios.post("http://localhost:3001/done",{
+                    todo : data
+                },{headers : {
+                    token : localStorage.getItem('token')
+                }});
+                alert("Status Updated")
+            }
+            catch{
+                alert("Unable to update")
+            }
+            fetchTodos();
+        }
+        async function changePriority(data){
+            try{
+                const response = await axios.post("http://localhost:3001/priority",{
+                    todo : data
+                },{
+                    headers : {
+                        token : localStorage.getItem('token')
+                    }
+                });
+                alert("Priority Increased")
+            }
+            catch{
+                alert("Unable to change the Priority")
+            }
+            fetchTodos();
+
+        }
+        async function deleteTodo(data){
+            try{
+                const response = await axios.post("http://localhost:3001/delete",{
+                    todo : data
+                },{headers :{
+                    token : localStorage.getItem('token')
+                }});
+
+            }
+            catch(err){
+                alert("unable to delete the task")
+            }
+            fetchTodos()
+        }
+
+    </script>
 </html>
