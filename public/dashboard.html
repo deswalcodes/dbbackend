@@ -184,7 +184,7 @@
         <button onclick = "resetp()">Reset Password</button>
     </div>
     <div id = "productivity">
-        Your Productivity - <span id ="pro"> </span>
+        Your Productivity - <span id ="pro"> </span> %
     </div>
     <div id ="pendingtodos">
         <button id = "pendingto" onclick = "pendingt()">Tasks Pending from a long time</button>
@@ -196,7 +196,10 @@
     <script src = "https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         window.onload = function() {
-            fetchTodos,points,pro;
+            fetchTodos();
+            points();
+            pro()
+
         }
         async function addtodo(){
             todo = document.getElementById("title").value;
@@ -346,7 +349,8 @@
                 token : localStorage.getItem('token')
             }
            });
-           response.data.todayPro = document.querySelector('#pro').innerHTML;
+           const value = response.data.todayPro;
+           document.querySelector('#pro').innerHTML = value;
 
         }
         async function pendingt(){

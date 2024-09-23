@@ -11,7 +11,7 @@ const { z } = require('zod');
 const rateLimit = require('express-rate-limit')
 const apiLimiter = rateLimit({
     windowMs : 15 * 60 * 1000,
-    max : 100,
+    max : 1000,
     message : 'Too many requests'
 });
 app.use(apiLimiter);
@@ -263,8 +263,8 @@ app.get('/productivity',auth,async function(req,res){
             userId : userId
         });
     
-        const productivity = ((Alltodo-notDone)/Alltodo) * 100 ;
-        if(productivity>80 && productivity<100){
+        const productivity = (((Alltodo-notDone)/Alltodo) * 100).toFixed(2) ;
+        if(productivity>80){
             res.json({
                 message : "You are going good today",
                 todayPro : productivity
